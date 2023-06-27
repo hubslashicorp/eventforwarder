@@ -32,23 +32,6 @@ public class EventDTO {
     private String workgroupDesc;
     private String workgroupLocation;
     private Map<String, String> nvps;
-
-    public void determineSeverityLabel() {
-        Map<String, String> severityLabels = new HashMap<>();
-        severityLabels.put("Information", "0");
-        severityLabels.put("low", "3");
-        severityLabels.put("medium", "6");
-        severityLabels.put("high", "9");
-
-        if (severityLabels.containsKey(severity)) {
-            String severityValue = severityLabels.get(severity);
-            setSeverity(severityValue);
-        } else {
-            setSeverity("-1");
-        }
-    }
-
-
     
     // Método toString() para exibição dos dados
     @Override
@@ -131,6 +114,18 @@ public class EventDTO {
     }
 
     public String getSeverity() {
+        Map<String, String> severityLabels = new HashMap<>();
+        severityLabels.put("Information", "0");
+        severityLabels.put("low", "3");
+        severityLabels.put("medium", "6");
+        severityLabels.put("high", "9");
+
+        if (severityLabels.containsKey(severity)) {
+            String severityValue = severityLabels.get(severity);
+            setSeverity(severityValue);
+        } else {
+            setSeverity("-1");
+        }
         return severity;
     }
 
