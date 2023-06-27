@@ -1,38 +1,89 @@
 package com.beyondtrust.eventforwarder.dto;
 
-import java.util.Map;
+import javax.persistence.*;
 import java.util.HashMap;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.Map;
 
+@Entity
+@Table(name = "event_table")
 public class EventDTO {
 
-    private String formatVersion;
-    private String vendor;
-    private String product;
-    private String version;
-    private String agentId;
-    private String agentDesc;
-    private String agentVer;
-    private String category;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "severity")
     private String severity;
+
+    @Column(name = "format_version")
+    private String formatVersion;
+
+    @Column(name = "vendor")
+    private String vendor;
+
+    @Column(name = "product")
+    private String product;
+
+    @Column(name = "version")
+    private String version;
+
+    @Column(name = "agent_id")
+    private String agentId;
+
+    @Column(name = "agent_desc")
+    private String agentDesc;
+
+    @Column(name = "agent_ver")
+    private String agentVer;
+
+    @Column(name = "category")
+    private String category;
+
+    @Column(name = "event_id")
     private String eventId;
+
+    @Column(name = "event_name")
     private String eventName;
+
+    @Column(name = "event_desc")
     private String eventDesc;
+
+    @Column(name = "event_date")
     private String eventDate;
+
+    @Column(name = "source_host")
     private String sourceHost;
+
+    @Column(name = "os")
     private String os;
+
+    @Column(name = "source_ip")
     private String sourceIp;
+
+    @Column(name = "event_subject")
     private String eventSubject;
+
+    @Column(name = "event_type")
     private String eventType;
+
+    @Column(name = "user")
     private String user;
+
+    @Column(name = "workgroup_id")
     private String workgroupId;
+
+    @Column(name = "workgroup_desc")
     private String workgroupDesc;
+
+    @Column(name = "workgroup_location")
     private String workgroupLocation;
-    private Map<String, String> nvps;
-    
+
+    @ElementCollection
+    @MapKeyColumn(name = "name")
+    @Column(name = "value")
+    @CollectionTable(name = "event_table_nvps", joinColumns = @JoinColumn(name = "event_id"))
+    private Map<String, String> nvps = new HashMap<>();
+
     // Método toString() para exibição dos dados
     @Override
     public String toString() {
@@ -47,6 +98,14 @@ public class EventDTO {
         event.setSeverity("low");
         event.determineSeverityLabel();
         event.saveToDatabase();
+    }
+
+    public String getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
     }
 
     public String getFormatVersion() {
@@ -111,26 +170,6 @@ public class EventDTO {
 
     public void setCategory(String category) {
         this.category = category;
-    }
-
-    public String getSeverity() {
-        Map<String, String> severityLabels = new HashMap<>();
-        severityLabels.put("Information", "0");
-        severityLabels.put("low", "3");
-        severityLabels.put("medium", "6");
-        severityLabels.put("high", "9");
-
-        if (severityLabels.containsKey(severity)) {
-            String severityValue = severityLabels.get(severity);
-            setSeverity(severityValue);
-        } else {
-            setSeverity("-1");
-        }
-        return severity;
-    }
-
-    public void setSeverity(String severity) {
-        this.severity = severity;
     }
 
     public String getEventId() {
@@ -245,58 +284,34 @@ public class EventDTO {
         this.nvps = nvps;
     }
 
-    @Autowired
-    private Environment environment;
+    public void determineSeverityLabel() {
+        Map<String, String> severityLabels = new HashMap<>();
+        severityLabels.put("Information", "0");
+        severityLabels.put("low", "3");
+        severityLabels.put("medium", "6");
+        severityLabels.put("high", "9");
+
+        if (severityLabels.containsKey(severity)) {
+            String severityValue = severityLabels.get(severity);
+            setSeverity(severityValue);
+        } else {
+            setSeverity("-1");
+        }
+    }
 
     public void saveToDatabase() {
-        // Configuração de conexão com o banco de dados
-        String url = environment.getProperty("spring.datasource.url");
-        String username = environment.getProperty("spring.datasource.username");
-        String password = environment.getProperty("spring.datasource.password");
-    
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
-            // Criação da declaração SQL com parâmetros para inserção dos dados
-            String sql = "INSERT INTO event_table (severity, format_version, vendor, product, version, agent_id, agent_desc, " +
-                    "agent_ver, category, event_id, event_name, event_desc, event_date, source_host, os, source_ip, " +
-                    "event_subject, event_type, user, workgroup_id, workgroup_desc, workgroup_location) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-            // Criação do PreparedStatement com a declaração SQL
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                // Definição dos parâmetros com os valores do objeto EventDTO
-                statement.setString(1, severity);
-                statement.setString(2, formatVersion);
-                statement.setString(3, vendor);
-                statement.setString(4, product);
-                statement.setString(5, version);
-                statement.setString(6, agentId);
-                statement.setString(7, agentDesc);
-                statement.setString(8, agentVer);
-                statement.setString(9, category);
-                statement.setString(10, eventId);
-                statement.setString(11, eventName);
-                statement.setString(12, eventDesc);
-                statement.setString(13, eventDate);
-                statement.setString(14, sourceHost);
-                statement.setString(15, os);
-                statement.setString(16, sourceIp);
-                statement.setString(17, eventSubject);
-                statement.setString(18, eventType);
-                statement.setString(19, user);
-                statement.setString(20, workgroupId);
-                statement.setString(21, workgroupDesc);
-                statement.setString(22, workgroupLocation);
-    
-                // Execução da inserção no banco de dados
-                int rowsInserted = statement.executeUpdate();
-                if (rowsInserted > 0) {
-                    System.out.println("Objeto EventDTO salvo no banco de dados: " + toString());
-                } else {
-                    System.out.println("Falha ao salvar o objeto EventDTO no banco de dados.");
-                }
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            try {
+                session.save(this);
+                transaction.commit();
+                System.out.println("Objeto EventDTO salvo no banco de dados: " + toString());
+            } catch (Exception e) {
+                transaction.rollback();
+                System.out.println("Falha ao salvar o objeto EventDTO no banco de dados.");
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            System.out.println("Ocorreu um erro ao conectar ao banco de dados: " + e.getMessage());
         }
     }
 }
