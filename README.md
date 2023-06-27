@@ -9,30 +9,25 @@ For further reference, please consider the following sections:
 
 
 ```shell
-└── src
-    └── main
-        ├── java
-        │   └── com
-        │       └── example
-        │           ├── config
-        │           │   ├── JwtTokenFilter.java
-        │           │   └── SecurityConfig.java
-        │           ├── controller
-        │           │   └── EventController.java
-        │           ├── dto
-        │           │   └── EventDTO.java
-        │           ├── entity
-        │           │   └── Event.java
-        │           ├── repository
-        │           │   └── EventRepository.java
-        │           ├── service
-        │           │   └── EventService.java
-        │           └── Application.java
-        └── resources
-            ├── application.properties
-            └── db
-                └── migration
-                    └── V1__Create_Events_Table.sql
+src
+└── main
+    └── java
+        └── com
+            └── beyondtrust
+                └── eventforwarder
+                    ├── controller
+                    │   └── EventController.java
+                    ├── dto
+                    │   └── EventDTO.java
+                    ├── model
+                    │   └── Event.java
+                    ├── repository
+                    │   └── EventRepository.java
+                    ├── service
+                    │   └── EventService.java
+                    ├── util
+                    │   └── EventUtils.java
+                    └── EventForwarderApplication.java
 ```
 
 # MYSQL test local config
